@@ -12,6 +12,9 @@ class Particle {
     private float mLastPosX;
     private float mLastPosY;
     private float mOneMinusFriction;
+    // diameter of the balls in meters
+    static final float sBallDiameter = 0.004f;
+    static final float sBallDiameter2 = sBallDiameter * sBallDiameter;
 
     Particle(SimulationView simulationView) {
         this.simulationView = simulationView;

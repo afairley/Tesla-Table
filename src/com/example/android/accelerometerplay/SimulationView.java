@@ -18,10 +18,7 @@ class SimulationView extends View implements SensorEventListener {
 	 * 
 	 */
 	private final AccelerometerPlayActivity accelerometerPlayActivity;
-	// diameter of the balls in meters
-    static final float sBallDiameter = 0.004f;
-    static final float sBallDiameter2 = sBallDiameter * sBallDiameter;
-
+	
     // friction of the virtual table and air
     static final float sFriction = 0.1f;
 
@@ -75,8 +72,8 @@ class SimulationView extends View implements SensorEventListener {
         //TODO 3.28.2011 This belongs in Particle's constructor
         // rescale the ball so it's about 0.5 cm on screen
         Bitmap ball = BitmapFactory.decodeResource(getResources(), R.drawable.ball);
-        final int dstWidth = (int) (sBallDiameter * mMetersToPixelsX + 0.5f);
-        final int dstHeight = (int) (sBallDiameter * mMetersToPixelsY + 0.5f);
+        final int dstWidth = (int) (Particle.sBallDiameter * mMetersToPixelsX + 0.5f);
+        final int dstHeight = (int) (Particle.sBallDiameter * mMetersToPixelsY + 0.5f);
         mBitmap = Bitmap.createScaledBitmap(ball, dstWidth, dstHeight, true);
 
         Options opts = new Options();
@@ -93,8 +90,8 @@ class SimulationView extends View implements SensorEventListener {
         mYOrigin = (h - mBitmap.getHeight()) * 0.5f;
         //TODO 3.28.2011 This belongs in ParticleSystem
         //which should have an onSizeChanged that gets called here.
-        mHorizontalBound = ((w / mMetersToPixelsX - sBallDiameter) * 0.5f);
-        mVerticalBound = ((h / mMetersToPixelsY - sBallDiameter) * 0.5f);
+        mHorizontalBound = ((w / mMetersToPixelsX - Particle.sBallDiameter) * 0.5f);
+        mVerticalBound = ((h / mMetersToPixelsY - Particle.sBallDiameter) * 0.5f);
     }
 
     @Override

@@ -73,9 +73,9 @@ class ParticleSystem {
                     float dy = ball.mPosY - curr.mPosY;
                     float dd = dx * dx + dy * dy;
                     // Check for collisions
-                    if (dd <= SimulationView.sBallDiameter2) {
+                    if (dd <= Particle.sBallDiameter2) {
                         /*
-                         * add a little bit of entropy, after nothing is
+                         * add a little bit of entropy, after all nothing is
                          * perfect in the universe.
                          */
                         dx += ((float) Math.random() - 0.5f) * 0.0001f;
@@ -83,7 +83,7 @@ class ParticleSystem {
                         dd = dx * dx + dy * dy;
                         // simulate the spring
                         final float d = (float) Math.sqrt(dd);
-                        final float c = (0.5f * (SimulationView.sBallDiameter - d)) / d;
+                        final float c = (0.5f * (Particle.sBallDiameter - d)) / d;
                         curr.mPosX -= dx * c;
                         curr.mPosY -= dy * c;
                         ball.mPosX += dx * c;
