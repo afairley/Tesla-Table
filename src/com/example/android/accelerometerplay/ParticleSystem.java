@@ -7,17 +7,19 @@ package com.example.android.accelerometerplay;
  */
 class ParticleSystem {
 
-	private final SimulationView simulationView;
+	private final SimulationView mSimulationView;
 	static final int NUM_PARTICLES = 15;
     private Particle mBalls[] = new Particle[NUM_PARTICLES];
+	float mHorizontalBound;
+	float mVerticalBound;
 
     ParticleSystem(SimulationView simulationView) {
-        this.simulationView = simulationView;
+        this.mSimulationView = simulationView;
 		/*
          * Initially our particles have no speed or acceleration
          */
         for (int i = 0; i < mBalls.length; i++) {
-            mBalls[i] = new Particle(this.simulationView,this);
+            mBalls[i] = new Particle(this);
         }
     }
 
@@ -27,24 +29,24 @@ class ParticleSystem {
      */
     private void updatePositions(float sx, float sy, long timestamp) {
         final long t = timestamp;
-        if (this.simulationView.mLastT != 0) {
-            final float dT = (float) (t - this.simulationView.mLastT) * (1.0f / 1000000000.0f);
-            if (this.simulationView.mLastDeltaT != 0) {
-                final float dTC = dT / this.simulationView.mLastDeltaT;
+        if (this.mSimulationView.mLastT != 0) {
+            final float dT = (float) (t - this.mSimulationView.mLastT) * (1.0f / 1000000000.0f);
+            if (this.mSimulationView.mLastDeltaT != 0) {
+                final float dTC = dT / this.mSimulationView.mLastDeltaT;
                 final int count = mBalls.length;
                 for (int i = 0; i < count; i++) {
                     Particle ball = mBalls[i];
                     ball.computePhysics(sx, sy, dT, dTC);
                 }
             }
-            this.simulationView.mLastDeltaT = dT;
+            this.mSimulationView.mLastDeltaT = dT;
         }
-        this.simulationView.mLastT = t;
+        this.mSimulationView.mLastT = t;
     }
 
     /*
      * Performs one iteration of the simulation. First updating the
-     * position of all the particles and resolving the constraints and
+     * position of all the particles, then resolving the constraints and
      * collisions.
      */
     public void update(float sx, float sy, long now) {
@@ -113,4 +115,17 @@ class ParticleSystem {
     public float getPosY(int i) {
         return mBalls[i].mPosY;
     }
+
+	public void onSizeChanged(int w, int h) {
+        //Calculate the new walls of the Particle System
+        float horizontalBound = ((w / mSimulationView.mMetersToPixelsX - Particle.sBallDiameter) * 0.5f);
+        float verticalBound = ((h / mSimulationView.mMetersToPixelsY - Particle.sBallDiameter) * 0.5f);
+        updateBounds(horizontalBound,verticalBound);
+		
+	}
+	
+	private void updateBounds(float horizontalBound, float verticalBound) {
+		mHorizontalBound = horizontalBound;
+		mVerticalBound = verticalBound;	
+	}
 }

@@ -1,11 +1,7 @@
 package com.example.android.accelerometerplay;
 
 class Particle {
-    /**
-	 * 
-	 */
-	private final SimulationView mSimulationView;
-	private final ParticleSystem mParticleSystem;
+    private final ParticleSystem mParticleSystem;
 	float mPosX;
     float mPosY;
     private float mAccelX;
@@ -17,8 +13,7 @@ class Particle {
     static final float sBallDiameter = 0.004f;
     static final float sBallDiameter2 = sBallDiameter * sBallDiameter;
 
-    Particle(SimulationView simulationView, ParticleSystem particleSystem) {
-        mSimulationView = simulationView;
+    Particle(ParticleSystem particleSystem) {
         mParticleSystem = particleSystem;
 		// make each particle a bit different by randomizing its
         // coefficient of friction
@@ -70,8 +65,8 @@ class Particle {
      * satisfied.
      */
     public void resolveCollisionWithBounds() {
-        final float xmax = this.mSimulationView.mHorizontalBound;
-        final float ymax = this.mSimulationView.mVerticalBound;
+        final float xmax = mParticleSystem.mHorizontalBound;
+        final float ymax = mParticleSystem.mVerticalBound;
         final float x = mPosX;
         final float y = mPosY;
         if (x > xmax) {

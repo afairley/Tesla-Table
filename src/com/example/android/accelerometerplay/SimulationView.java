@@ -28,8 +28,8 @@ class SimulationView extends View implements SensorEventListener {
 
     private float mXDpi;
     private float mYDpi;
-    private float mMetersToPixelsX;
-    private float mMetersToPixelsY;
+    float mMetersToPixelsX;
+    float mMetersToPixelsY;
     private Bitmap mBitmap;
     private Bitmap mWood;
     private float mXOrigin;
@@ -38,8 +38,6 @@ class SimulationView extends View implements SensorEventListener {
     private float mSensorY;
     private long mSensorTimeStamp;
     private long mCpuTimeStamp;
-    float mHorizontalBound;
-    float mVerticalBound;
     private final ParticleSystem mParticleSystem = new ParticleSystem(this);
 
     public void startSimulation() {
@@ -88,10 +86,8 @@ class SimulationView extends View implements SensorEventListener {
         // the bitmap
         mXOrigin = (w - mBitmap.getWidth()) * 0.5f;
         mYOrigin = (h - mBitmap.getHeight()) * 0.5f;
-        //TODO 3.28.2011 This belongs in ParticleSystem
-        //which should have an onSizeChanged that gets called here.
-        mHorizontalBound = ((w / mMetersToPixelsX - Particle.sBallDiameter) * 0.5f);
-        mVerticalBound = ((h / mMetersToPixelsY - Particle.sBallDiameter) * 0.5f);
+
+        mParticleSystem.onSizeChanged(w,h);
     }
 
     @Override
