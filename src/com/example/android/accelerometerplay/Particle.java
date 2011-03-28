@@ -4,7 +4,8 @@ class Particle {
     /**
 	 * 
 	 */
-	private final SimulationView simulationView;
+	private final SimulationView mSimulationView;
+	private final ParticleSystem mParticleSystem;
 	float mPosX;
     float mPosY;
     private float mAccelX;
@@ -16,8 +17,9 @@ class Particle {
     static final float sBallDiameter = 0.004f;
     static final float sBallDiameter2 = sBallDiameter * sBallDiameter;
 
-    Particle(SimulationView simulationView) {
-        this.simulationView = simulationView;
+    Particle(SimulationView simulationView, ParticleSystem particleSystem) {
+        mSimulationView = simulationView;
+        mParticleSystem = particleSystem;
 		// make each particle a bit different by randomizing its
         // coefficient of friction
         final float r = ((float) Math.random() - 0.5f) * 0.2f;
@@ -68,8 +70,8 @@ class Particle {
      * satisfied.
      */
     public void resolveCollisionWithBounds() {
-        final float xmax = this.simulationView.mHorizontalBound;
-        final float ymax = this.simulationView.mVerticalBound;
+        final float xmax = this.mSimulationView.mHorizontalBound;
+        final float ymax = this.mSimulationView.mVerticalBound;
         final float x = mPosX;
         final float y = mPosY;
         if (x > xmax) {

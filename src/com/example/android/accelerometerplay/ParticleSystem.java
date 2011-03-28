@@ -1,10 +1,12 @@
 package com.example.android.accelerometerplay;
 
-
+/** A mathematical model of a system of particles.  
+ * 
+ * @author johannes
+ *
+ */
 class ParticleSystem {
-    /**
-	 * 
-	 */
+
 	private final SimulationView simulationView;
 	static final int NUM_PARTICLES = 15;
     private Particle mBalls[] = new Particle[NUM_PARTICLES];
@@ -15,7 +17,7 @@ class ParticleSystem {
          * Initially our particles have no speed or acceleration
          */
         for (int i = 0; i < mBalls.length; i++) {
-            mBalls[i] = new Particle(this.simulationView);
+            mBalls[i] = new Particle(this.simulationView,this);
         }
     }
 
