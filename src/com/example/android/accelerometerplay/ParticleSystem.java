@@ -1,16 +1,15 @@
 package com.example.android.accelerometerplay;
 
-import com.example.android.accelerometerplay.AccelerometerPlayActivity.SimulationView;
 
 class ParticleSystem {
     /**
 	 * 
 	 */
-	private final AccelerometerPlayActivity.SimulationView simulationView;
+	private final SimulationView simulationView;
 	static final int NUM_PARTICLES = 15;
     private Particle mBalls[] = new Particle[NUM_PARTICLES];
 
-    ParticleSystem(AccelerometerPlayActivity.SimulationView simulationView) {
+    ParticleSystem(SimulationView simulationView) {
         this.simulationView = simulationView;
 		/*
          * Initially our particles have no speed or acceleration
@@ -71,7 +70,7 @@ class ParticleSystem {
                     float dy = ball.mPosY - curr.mPosY;
                     float dd = dx * dx + dy * dy;
                     // Check for collisions
-                    if (dd <= AccelerometerPlayActivity.SimulationView.sBallDiameter2) {
+                    if (dd <= SimulationView.sBallDiameter2) {
                         /*
                          * add a little bit of entropy, after nothing is
                          * perfect in the universe.
@@ -81,7 +80,7 @@ class ParticleSystem {
                         dd = dx * dx + dy * dy;
                         // simulate the spring
                         final float d = (float) Math.sqrt(dd);
-                        final float c = (0.5f * (AccelerometerPlayActivity.SimulationView.sBallDiameter - d)) / d;
+                        final float c = (0.5f * (SimulationView.sBallDiameter - d)) / d;
                         curr.mPosX -= dx * c;
                         curr.mPosY -= dy * c;
                         ball.mPosX += dx * c;

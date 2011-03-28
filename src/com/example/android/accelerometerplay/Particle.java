@@ -4,7 +4,7 @@ class Particle {
     /**
 	 * 
 	 */
-	private final AccelerometerPlayActivity.SimulationView simulationView;
+	private final SimulationView simulationView;
 	float mPosX;
     float mPosY;
     private float mAccelX;
@@ -13,12 +13,12 @@ class Particle {
     private float mLastPosY;
     private float mOneMinusFriction;
 
-    Particle(AccelerometerPlayActivity.SimulationView simulationView) {
+    Particle(SimulationView simulationView) {
         this.simulationView = simulationView;
 		// make each particle a bit different by randomizing its
         // coefficient of friction
         final float r = ((float) Math.random() - 0.5f) * 0.2f;
-        mOneMinusFriction = 1.0f - AccelerometerPlayActivity.SimulationView.sFriction + r;
+        mOneMinusFriction = 1.0f - SimulationView.sFriction + r;
     }
 
     public void computePhysics(float sx, float sy, float dT, float dTC) {
