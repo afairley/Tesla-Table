@@ -48,8 +48,11 @@ class ParticleSystem {
     public void update(float sx, float sy, long now) {
         // update the system's positions
         updatePositions(sx, sy, now);
+        resolveCollisions();   
+    }
 
-        // We do no more than a limited number of iterations
+    private void resolveCollisions() {
+    	// We do no more than a limited number of iterations
         final int NUM_MAX_ITERATIONS = 10;
 
         /*
@@ -89,15 +92,15 @@ class ParticleSystem {
                     }
                 }
                 /*
-                 * Finally make sure the particle doesn't intersects
+                 * Finally make sure the particle doesn't intersect
                  * with the walls.
                  */
                 curr.resolveCollisionWithBounds();
             }
         }
-    }
+	}
 
-    public int getParticleCount() {
+	public int getParticleCount() {
         return mBalls.length;
     }
 

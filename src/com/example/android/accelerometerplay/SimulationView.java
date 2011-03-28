@@ -72,6 +72,7 @@ class SimulationView extends View implements SensorEventListener {
         mMetersToPixelsX = mXDpi / 0.0254f;
         mMetersToPixelsY = mYDpi / 0.0254f;
 
+        //TODO 3.28.2011 This belongs in Particle's constructor
         // rescale the ball so it's about 0.5 cm on screen
         Bitmap ball = BitmapFactory.decodeResource(getResources(), R.drawable.ball);
         final int dstWidth = (int) (sBallDiameter * mMetersToPixelsX + 0.5f);
@@ -90,6 +91,8 @@ class SimulationView extends View implements SensorEventListener {
         // the bitmap
         mXOrigin = (w - mBitmap.getWidth()) * 0.5f;
         mYOrigin = (h - mBitmap.getHeight()) * 0.5f;
+        //TODO 3.28.2011 This belongs in ParticleSystem
+        //which should have an onSizeChanged that gets called here.
         mHorizontalBound = ((w / mMetersToPixelsX - sBallDiameter) * 0.5f);
         mVerticalBound = ((h / mMetersToPixelsY - sBallDiameter) * 0.5f);
     }
@@ -106,7 +109,7 @@ class SimulationView extends View implements SensorEventListener {
          * sensors (which always return data in a coordinate space aligned
          * to with the screen in its native orientation).
          */
-
+       
         switch (this.accelerometerPlayActivity.mDisplay.getRotation()) {
             case Surface.ROTATION_0:
                 mSensorX = event.values[0];
