@@ -1,5 +1,7 @@
 package com.example.android.accelerometerplay;
 
+import android.graphics.Bitmap;
+
 /** A mathematical model of a system of particles.  
  * 
  * @author johannes
@@ -8,18 +10,25 @@ package com.example.android.accelerometerplay;
 class ParticleSystem {
 
 	private final SimulationView mSimulationView;
+	private AccelerometerPlayActivity mAccelerometerPlayActivity;
+
 	static final int NUM_PARTICLES = 15;
     private Particle mBalls[] = new Particle[NUM_PARTICLES];
 	float mHorizontalBound;
 	float mVerticalBound;
+	float mMetersToPixelsX;
+	float mMetersToPixelsY;
 
-    ParticleSystem(SimulationView simulationView) {
+    ParticleSystem(SimulationView simulationView, AccelerometerPlayActivity accelerometerPlayActivity) {
         this.mSimulationView = simulationView;
+        mAccelerometerPlayActivity = accelerometerPlayActivity;
 		/*
          * Initially our particles have no speed or acceleration
          */
+        mMetersToPixelsX = mSimulationView.mXDpi / 0.0254f;
+        mMetersToPixelsY = mSimulationView.mYDpi / 0.0254f;
         for (int i = 0; i < mBalls.length; i++) {
-            mBalls[i] = new Particle(this);
+            mBalls[i] = new Particle(this, accelerometerPlayActivity);
         }
     }
 
@@ -118,8 +127,8 @@ class ParticleSystem {
 
 	public void onSizeChanged(int w, int h) {
         //Calculate the new walls of the Particle System
-        float horizontalBound = ((w / mSimulationView.mMetersToPixelsX - Particle.sBallDiameter) * 0.5f);
-        float verticalBound = ((h / mSimulationView.mMetersToPixelsY - Particle.sBallDiameter) * 0.5f);
+        float horizontalBound = ((w / mMetersToPixelsX - Particle.sBallDiameter) * 0.5f);
+        float verticalBound = ((h / mMetersToPixelsY - Particle.sBallDiameter) * 0.5f);
         updateBounds(horizontalBound,verticalBound);
 		
 	}
@@ -127,5 +136,10 @@ class ParticleSystem {
 	private void updateBounds(float horizontalBound, float verticalBound) {
 		mHorizontalBound = horizontalBound;
 		mVerticalBound = verticalBound;	
+	}
+
+	public Bitmap getBitmap(int i) {
+		// TODO Auto-generated method stub
+		return mBalls[i].mBitmap;
 	}
 }

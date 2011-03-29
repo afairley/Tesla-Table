@@ -1,5 +1,8 @@
 package com.example.android.accelerometerplay;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 class Particle {
     private final ParticleSystem mParticleSystem;
 	float mPosX;
@@ -9,16 +12,24 @@ class Particle {
     private float mLastPosX;
     private float mLastPosY;
     private float mOneMinusFriction;
+    Bitmap mBitmap;
+	private AccelerometerPlayActivity mActivity;
     // diameter of the balls in meters
     static final float sBallDiameter = 0.004f;
     static final float sBallDiameter2 = sBallDiameter * sBallDiameter;
 
-    Particle(ParticleSystem particleSystem) {
+    Particle(ParticleSystem particleSystem, AccelerometerPlayActivity accelerometerPlayActivity) {
         mParticleSystem = particleSystem;
+        mActivity =  accelerometerPlayActivity;
 		// make each particle a bit different by randomizing its
         // coefficient of friction
         final float r = ((float) Math.random() - 0.5f) * 0.2f;
         mOneMinusFriction = 1.0f - SimulationView.sFriction + r;
+
+        Bitmap ball = BitmapFactory.decodeResource( mActivity.getResources(), R.drawable.ball);
+        final int dstWidth = (int) (Particle.sBallDiameter * mParticleSystem.mMetersToPixelsX + 0.5f);
+        final int dstHeight = (int) (Particle.sBallDiameter * mParticleSystem.mMetersToPixelsY + 0.5f);
+        mBitmap = Bitmap.createScaledBitmap(ball, dstWidth, dstHeight, true);
     }
 
     public void computePhysics(float sx, float sy, float dT, float dTC) {

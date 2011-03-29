@@ -26,11 +26,10 @@ class SimulationView extends View implements SensorEventListener {
     long mLastT;
     float mLastDeltaT;
 
-    private float mXDpi;
-    private float mYDpi;
-    float mMetersToPixelsX;
-    float mMetersToPixelsY;
-    private Bitmap mBitmap;
+    float mXDpi;
+    float mYDpi;
+	private int mWidth;
+	private int mHeight;
     private Bitmap mWood;
     private float mXOrigin;
     private float mYOrigin;
@@ -38,7 +37,7 @@ class SimulationView extends View implements SensorEventListener {
     private float mSensorY;
     private long mSensorTimeStamp;
     private long mCpuTimeStamp;
-    private final ParticleSystem mParticleSystem = new ParticleSystem(this);
+    private ParticleSystem mParticleSystem;
 
     public void startSimulation() {
         /*
@@ -48,7 +47,11 @@ class SimulationView extends View implements SensorEventListener {
          * of the acceleration. As an added benefit, we use less power and
          * CPU resources.
          */
-        this.accelerometerPlayActivity.mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+        this.accelerometerPlayActivity.mSensorManager.registerListener(this, mAccelerometer, 
+        		SensorManager.SENSOR_DELAY_UI);
+        if (this.mParticleSystem == null){
+            mParticleSystem = new ParticleSystem(this, accelerometerPlayActivity);
+        }
     }
 
     public void stopSimulation() {
@@ -64,28 +67,19 @@ class SimulationView extends View implements SensorEventListener {
         this.accelerometerPlayActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mXDpi = metrics.xdpi;
         mYDpi = metrics.ydpi;
-        mMetersToPixelsX = mXDpi / 0.0254f;
-        mMetersToPixelsY = mYDpi / 0.0254f;
-
-        //TODO 3.28.2011 This belongs in Particle's constructor
-        // rescale the ball so it's about 0.5 cm on screen
-        Bitmap ball = BitmapFactory.decodeResource(getResources(), R.drawable.ball);
-        final int dstWidth = (int) (Particle.sBallDiameter * mMetersToPixelsX + 0.5f);
-        final int dstHeight = (int) (Particle.sBallDiameter * mMetersToPixelsY + 0.5f);
-        mBitmap = Bitmap.createScaledBitmap(ball, dstWidth, dstHeight, true);
-
         Options opts = new Options();
         opts.inDither = true;
         opts.inPreferredConfig = Bitmap.Config.RGB_565;
         mWood = BitmapFactory.decodeResource(getResources(), R.drawable.wood, opts);
+
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         // compute the origin of the screen relative to the origin of
         // the bitmap
-        mXOrigin = (w - mBitmap.getWidth()) * 0.5f;
-        mYOrigin = (h - mBitmap.getHeight()) * 0.5f;
+    	mWidth = w;
+    	mHeight = h;
 
         mParticleSystem.onSizeChanged(w,h);
     }
@@ -147,11 +141,10 @@ class SimulationView extends View implements SensorEventListener {
 
         particleSystem.update(sx, sy, now);
 
-        final float xc = mXOrigin;
-        final float yc = mYOrigin;
-        final float xs = mMetersToPixelsX;
-        final float ys = mMetersToPixelsY;
-        final Bitmap bitmap = mBitmap;
+ 
+        final float xs = mParticleSystem.mMetersToPixelsX;
+        final float ys = mParticleSystem.mMetersToPixelsY;
+        
         final int count = particleSystem.getParticleCount();
         for (int i = 0; i < count; i++) {
             /*
@@ -159,9 +152,11 @@ class SimulationView extends View implements SensorEventListener {
              * the sensors coordinate system with the origin in the center
              * of the screen and the unit is the meter.
              */
-
-            final float x = xc + particleSystem.getPosX(i) * xs;
-            final float y = yc - particleSystem.getPosY(i) * ys;
+            final Bitmap bitmap = mParticleSystem.getBitmap(i);
+            final float xc = (mWidth - bitmap.getWidth()) * 0.5f;
+            final float yc = (mHeight - bitmap.getHeight()) * 0.5f;
+            final float x = xc + mParticleSystem.getPosX(i) * xs;
+            final float y = yc - mParticleSystem.getPosY(i) * ys;
             canvas.drawBitmap(bitmap, x, y, null);
         }
 

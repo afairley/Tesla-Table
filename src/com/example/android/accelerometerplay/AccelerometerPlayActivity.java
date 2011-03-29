@@ -46,12 +46,11 @@ public class AccelerometerPlayActivity extends Activity {
     private WindowManager mWindowManager;
     Display mDisplay;
     private WakeLock mWakeLock;
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+   
         // Get an instance of the SensorManager
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
