@@ -26,8 +26,6 @@ class SimulationView extends View implements SensorEventListener {
     long mLastT;
     float mLastDeltaT;
 
-    float mXDpi;
-    float mYDpi;
 	private int mWidth;
 	private int mHeight;
     private Bitmap mWood;
@@ -38,17 +36,15 @@ class SimulationView extends View implements SensorEventListener {
     private long mSensorTimeStamp;
     private long mCpuTimeStamp;
     private ParticleSystem mParticleSystem;
+    private DisplayMetrics mDisplayMetrics;
 
     public void startSimulation() {
-        /*
-         * It is not necessary to get accelerometer events at a very high
-         * rate, by using a slower rate (SENSOR_DELAY_UI), we get an
-         * automatic low-pass filter, which "extracts" the gravity component
-         * of the acceleration. As an added benefit, we use less power and
-         * CPU resources.
-         */
+        
+    	// Using SENSOR_DELAY_UI serves as alow-pass filter to 
+    	// eliminate gravity from sensor readings
         this.accelerometerPlayActivity.mSensorManager.registerListener(this, mAccelerometer, 
         		SensorManager.SENSOR_DELAY_UI);
+        
         if (this.mParticleSystem == null){
             mParticleSystem = new ParticleSystem(this, accelerometerPlayActivity);
         }
@@ -61,12 +57,10 @@ class SimulationView extends View implements SensorEventListener {
     public SimulationView(AccelerometerPlayActivity accelerometerPlayActivity, Context context) {
         super(context);
 		this.accelerometerPlayActivity = accelerometerPlayActivity;
-        mAccelerometer = this.accelerometerPlayActivity.mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mAccelerometer = this.accelerometerPlayActivity.mSensorManager.getDefaultSensor(
+        																Sensor.TYPE_ACCELEROMETER);
 
-        DisplayMetrics metrics = new DisplayMetrics();
-        this.accelerometerPlayActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        mXDpi = metrics.xdpi;
-        mYDpi = metrics.ydpi;
+        initializeMetrics();
         Options opts = new Options();
         opts.inDither = true;
         opts.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -74,7 +68,15 @@ class SimulationView extends View implements SensorEventListener {
 
     }
 
-    @Override
+    private void initializeMetrics() {
+        mDisplayMetrics = new DisplayMetrics();
+        this.accelerometerPlayActivity.getWindowManager().
+        		getDefaultDisplay().getMetrics(mDisplayMetrics);
+        
+		
+	}
+
+	@Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         // compute the origin of the screen relative to the origin of
         // the bitmap
@@ -167,4 +169,8 @@ class SimulationView extends View implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
+
+	public DisplayMetrics getDisplayMetrics() {
+		return mDisplayMetrics;
+	}
 }

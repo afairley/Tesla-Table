@@ -1,6 +1,8 @@
 package com.example.android.accelerometerplay;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.DisplayMetrics;
 
 /** A mathematical model of a system of particles.  
  * 
@@ -10,7 +12,6 @@ import android.graphics.Bitmap;
 class ParticleSystem {
 
 	private final SimulationView mSimulationView;
-	private AccelerometerPlayActivity mAccelerometerPlayActivity;
 
 	static final int NUM_PARTICLES = 15;
     private Particle mBalls[] = new Particle[NUM_PARTICLES];
@@ -19,16 +20,22 @@ class ParticleSystem {
 	float mMetersToPixelsX;
 	float mMetersToPixelsY;
 
-    ParticleSystem(SimulationView simulationView, AccelerometerPlayActivity accelerometerPlayActivity) {
+    ParticleSystem(SimulationView simulationView, 
+    		AccelerometerPlayActivity accelerometerPlayActivity) {
         this.mSimulationView = simulationView;
-        mAccelerometerPlayActivity = accelerometerPlayActivity;
+        
+        DisplayMetrics metrics = simulationView.getDisplayMetrics();
+        final float XDPI = metrics.xdpi;
+        final float YDPI = metrics.ydpi;
 		/*
          * Initially our particles have no speed or acceleration
          */
-        mMetersToPixelsX = mSimulationView.mXDpi / 0.0254f;
-        mMetersToPixelsY = mSimulationView.mYDpi / 0.0254f;
+        mMetersToPixelsX = XDPI / 0.0254f;
+        mMetersToPixelsY = YDPI / 0.0254f;
+        Bitmap ball = BitmapFactory.decodeResource( accelerometerPlayActivity.getResources(),
+        											R.drawable.ball);
         for (int i = 0; i < mBalls.length; i++) {
-            mBalls[i] = new Particle(this, accelerometerPlayActivity);
+            mBalls[i] = new Particle(this, ball);
         }
     }
 
