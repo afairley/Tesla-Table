@@ -17,31 +17,35 @@ class Particle {
     // diameter of the balls in meters
     static final float sBallDiameter = 0.004f;
     static final float sBallDiameter2 = sBallDiameter * sBallDiameter;
+	private float mMass;
 
     Particle(ParticleSystem particleSystem, Bitmap ball) {
         mParticleSystem = particleSystem;
 		// make each particle a bit different by randomizing its
         // coefficient of friction
-        final float r = ((float) Math.random() - 0.5f) * 0.2f;
-        mOneMinusFriction = 1.0f - SimulationView.sFriction + r;
-
-        final int dstWidth = (int) (Particle.sBallDiameter * mParticleSystem.mMetersToPixelsX + 0.5f);
-        final int dstHeight = (int) (Particle.sBallDiameter * mParticleSystem.mMetersToPixelsY + 0.5f);
+        final float r1 = ((float) Math.random() - 0.5f) * 0.2f;
+        final float r2 = (float) (Math.random() + 0.5f);
+        mOneMinusFriction = 1.0f - SimulationView.sFriction + r1;
+        mMass = 700.0f + 300 * r2;
+        final float scaleFactor = mMass/1000.0f;
+        final int dstWidth = (int) ( (Particle.sBallDiameter * mParticleSystem.mMetersToPixelsX + 0.5f)
+        							 * scaleFactor)	;
+        final int dstHeight = (int)(  (Particle.sBallDiameter * mParticleSystem.mMetersToPixelsY + 0.5f)
+        		                      * scaleFactor)	;
         mBitmap = Bitmap.createScaledBitmap(ball, dstWidth, dstHeight, true);
     }
 
     public void computePhysics(float sx, float sy, float dT, float dTC) {
-        // Force of gravity applied to our virtual object
-        final float m = 1000.0f; // mass of our virtual object
-        final float gx = -sx * m;
-        final float gy = -sy * m;
+        
+        final float gx = -sx * mMass;
+        final float gy = -sy * mMass;
 
         /*
          * �F = mA <=> A = �F / m We could simplify the code by
          * completely eliminating "m" (the mass) from all the equations,
          * but it would hide the concepts from this sample code.
          */
-        final float invm = 1.0f / m;
+        final float invm = 1.0f / mMass;
         final float ax = gx * invm;
         final float ay = gy * invm;
 
