@@ -2,6 +2,7 @@ package com.example.android.accelerometerplay;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 
 class Particle {
     private final ParticleSystem mParticleSystem;
@@ -26,16 +27,34 @@ class Particle {
         final float r1 = ((float) Math.random() - 0.5f) * 0.2f;
         final float r2 = (float) (Math.random() + 0.5f);
         mOneMinusFriction = 1.0f - SimulationView.sFriction + r1;
-        mMass = 700.0f + 300 * r2;
+        mMass = 500.0f + 500 * r2;
         final float scaleFactor = mMass/1000.0f;
         final int dstWidth = (int) ( (Particle.sBallDiameter * mParticleSystem.mMetersToPixelsX + 0.5f)
         							 * scaleFactor)	;
         final int dstHeight = (int)(  (Particle.sBallDiameter * mParticleSystem.mMetersToPixelsY + 0.5f)
         		                      * scaleFactor)	;
         mBitmap = Bitmap.createScaledBitmap(ball, dstWidth, dstHeight, true);
+        colorize_bitmap_based_on_friction(r1);
     }
 
-    public void computePhysics(float sx, float sy, float dT, float dTC) {
+    private void colorize_bitmap_based_on_friction(float r1) {
+    	for ( int h = 0; h < mBitmap.getHeight(); h++) {
+        	for ( int w = 0; w < mBitmap.getWidth(); w++) {
+        		final int color_orig = mBitmap.getPixel(w, h);
+        		final int color_shade = Color.argb(Color.alpha(color_orig),
+        				                           Color.red(color_orig),
+        				                           Color.green(color_orig),
+        				                           (int) Math.max(
+        				            Color.blue(color_orig) + Math.floor(255 *((r1/0.2f) + 0.5f)),
+        				            		       255
+        				            		       )
+        				                           );
+        		
+        	}
+        }		
+	}
+
+	public void computePhysics(float sx, float sy, float dT, float dTC) {
         
         final float gx = -sx * mMass;
         final float gy = -sy * mMass;
