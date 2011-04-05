@@ -10,6 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 
@@ -26,8 +27,8 @@ class SimulationView extends View implements SensorEventListener {
     long mLastT;
     float mLastDeltaT;
 
-	private int mWidth;
-	private int mHeight;
+	int mWidth;
+	int mHeight;
     private Bitmap mWood;
     private float mXOrigin;
     private float mYOrigin;
@@ -154,6 +155,7 @@ class SimulationView extends View implements SensorEventListener {
              * the sensors coordinate system with the origin in the center
              * of the screen and the unit is the meter.
              */
+        	//TODO Replace all these .getFoo(index)methods with something more elegant
             final Bitmap bitmap = mParticleSystem.getBitmap(i);
             final float xc = (mWidth - bitmap.getWidth()) * 0.5f;
             final float yc = (mHeight - bitmap.getHeight()) * 0.5f;
@@ -169,7 +171,69 @@ class SimulationView extends View implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
+    	
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+    	switch(event.getAction()){
+    	case(MotionEvent.ACTION_DOWN):
+    	    handleActionDown(event);
+    		break;
+    	case(MotionEvent.ACTION_UP):
+    	    handleActionUp(event);
+    		break;
+    	case(MotionEvent.ACTION_MOVE):
+    	    handleActionMove(event);
+    		break;
+    	default:
+    		return false;
+    	}
+    	invalidate();
+    	return true;
+    }
 
+	
+    private void handleActionDown(MotionEvent event) {
+		final int numPointers = event.getPointerCount();
+		for(int pointerIndex = 0;  pointerIndex < numPointers; pointerIndex++){
+			final int pointerId = event.getPointerId(pointerIndex);
+			final float pointer_x  = event.getX(pointerIndex);
+			final float pointer_y  = event.getY(pointerIndex);
+			for (Particle p : mParticleSystem.getParticles()){
+				if( p.intersects(pointer_x, pointer_y) ){
+					p.handleActionDownPointer(pointerId);
+				}
+			}
+		}
+		
+	}
+    
+	private void handleActionUp(MotionEvent event) {
+		final int numPointers = event.getPointerCount();
+		for(int pointerIndex = 0;  pointerIndex < numPointers; pointerIndex++){
+			final int pointerId = event.getPointerId(pointerIndex);
+			for (Particle p : mParticleSystem.getParticles()){
+				if( p.touchedBy(pointerId) ){
+					p.handleActionUp();
+				}
+			}
+		}
+		
+	}
+
+	
+	private void handleActionMove(MotionEvent event) {
+		final int numPointers = event.getPointerCount();
+		for(int pointerIndex = 0;  pointerIndex < numPointers; pointerIndex++){
+			final int pointerId = event.getPointerId(pointerIndex);
+			for (Particle p : mParticleSystem.getParticles()){
+				if( p.touchedBy(pointerId) ){
+					p.handleActionMove(event);
+				}
+			}
+		}
+		
+	}
+	
 	public DisplayMetrics getDisplayMetrics() {
 		return mDisplayMetrics;
 	}

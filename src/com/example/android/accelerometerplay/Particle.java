@@ -1,8 +1,8 @@
 package com.example.android.accelerometerplay;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.view.MotionEvent;
 
 class Particle {
     private final ParticleSystem mParticleSystem;
@@ -19,6 +19,7 @@ class Particle {
     static final float sBallDiameter = 0.004f;
     static final float sBallDiameter2 = sBallDiameter * sBallDiameter;
 	private float mMass;
+	private int mTouchedBy;
 
     Particle(ParticleSystem particleSystem, Bitmap ball) {
         mParticleSystem = particleSystem;
@@ -44,50 +45,50 @@ class Particle {
         		final int color_shade = Color.argb(Color.alpha(color_orig),
         				                           Color.red(color_orig),
         				                           Color.green(color_orig),
-        				                           (int) Math.max(
+        				                           (int) Math.min(
         				            Color.blue(color_orig) + Math.floor(255 *((r1/0.2f) + 0.5f)),
         				            		       255
         				            		       )
         				                           );
+        		mBitmap.setPixel(w, h, color_shade);
         		
         	}
         }		
 	}
 
 	public void computePhysics(float sx, float sy, float dT, float dTC) {
-        
-        final float gx = -sx * mMass;
-        final float gy = -sy * mMass;
-
-        /*
-         * �F = mA <=> A = �F / m We could simplify the code by
-         * completely eliminating "m" (the mass) from all the equations,
-         * but it would hide the concepts from this sample code.
-         */
-        final float invm = 1.0f / mMass;
-        final float ax = gx * invm;
-        final float ay = gy * invm;
-
-        /*
-         * Time-corrected Verlet integration The position Verlet
-         * integrator is defined as x(t+�t) = x(t) + x(t) - x(t-�t) +
-         * a(t)�t�2 However, the above equation doesn't handle variable
-         * �t very well, a time-corrected version is needed: x(t+�t) =
-         * x(t) + (x(t) - x(t-�t)) * (�t/�t_prev) + a(t)�t�2 We also add
-         * a simple friction term (f) to the equation: x(t+�t) = x(t) +
-         * (1-f) * (x(t) - x(t-�t)) * (�t/�t_prev) + a(t)�t�2
-         */
-        final float dTdT = dT * dT;
-        final float x = mPosX + mOneMinusFriction * dTC * (mPosX - mLastPosX) + mAccelX
+        if ( mTouchedBy == -1){
+         final float gx = -sx * mMass;
+         final float gy = -sy * mMass;
+         /*
+          * �F = mA <=> A = �F / m We could simplify the code by
+          * completely eliminating "m" (the mass) from all the equations,
+          * but it would hide the concepts from this sample code.
+          */
+         final float invm = 1.0f / mMass;
+         final float ax = gx * invm;
+         final float ay = gy * invm;
+         /*
+          * Time-corrected Verlet integration The position Verlet
+          * integrator is defined as x(t+�t) = x(t) + x(t) - x(t-�t) +
+          * a(t)�t�2 However, the above equation doesn't handle variable
+          * �t very well, a time-corrected version is needed: x(t+�t) =
+          * x(t) + (x(t) - x(t-�t)) * (�t/�t_prev) + a(t)�t�2 We also add
+          * a simple friction term (f) to the equation: x(t+�t) = x(t) +
+          * (1-f) * (x(t) - x(t-�t)) * (�t/�t_prev) + a(t)�t�2
+          */
+         final float dTdT = dT * dT;
+         final float x = mPosX + mOneMinusFriction * dTC * (mPosX - mLastPosX) + mAccelX
                 * dTdT;
-        final float y = mPosY + mOneMinusFriction * dTC * (mPosY - mLastPosY) + mAccelY
+         final float y = mPosY + mOneMinusFriction * dTC * (mPosY - mLastPosY) + mAccelY
                 * dTdT;
-        mLastPosX = mPosX;
-        mLastPosY = mPosY;
-        mPosX = x;
-        mPosY = y;
-        mAccelX = ax;
-        mAccelY = ay;
+         mLastPosX = mPosX;
+         mLastPosY = mPosY;
+         mPosX = x;
+         mPosY = y;
+         mAccelX = ax;
+         mAccelY = ay;
+        }
     }
 
     /*
@@ -112,4 +113,37 @@ class Particle {
             mPosY = -ymax;
         }
     }
+
+	public boolean intersects(float pointer_x, float pointer_y) {
+        final Bitmap bitmap = mBitmap;
+        final float xc = (mParticleSystem.mSimulationView.mWidth - bitmap.getWidth()) * 0.5f;
+        final float yc = (mParticleSystem.mSimulationView.mHeight - bitmap.getHeight()) * 0.5f;
+        final float x = xc + mPosX * mParticleSystem.mMetersToPixelsX;
+        final float y = yc - mPosY * mParticleSystem.mMetersToPixelsY;
+        if( pointer_x >= x && pointer_x <= x + bitmap.getWidth() ){
+        	if( pointer_y >= y && pointer_y <= y + bitmap.getHeight() ){
+        		return true;
+        	}
+        }
+        return false;
+	}
+
+	public boolean touchedBy(int pointerId) {
+		return mTouchedBy == pointerId;
+	}
+
+	public void handleActionDownPointer(int pointerId) {
+		mTouchedBy = pointerId;
+	}
+	public void handleActionUp() {
+		mTouchedBy = -1;
+	}
+	public void handleActionMove(MotionEvent event){
+		final int idx = event.findPointerIndex(mTouchedBy);
+		//for now, let's just see how making the thing track to your finger works,
+		//then we'll do some weird stuff with integrating forces once the kinks are worked out
+		//prob also need to do the coord transform baloney homie is doing out at the wrong level
+		mPosX = event.getX(mTouchedBy)/mParticleSystem.mMetersToPixelsX;
+		mPosY = event.getY(mTouchedBy)/mParticleSystem.mMetersToPixelsY;
+	}
 }

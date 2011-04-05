@@ -11,7 +11,7 @@ import android.util.DisplayMetrics;
  */
 class ParticleSystem {
 
-	private final SimulationView mSimulationView;
+	final SimulationView mSimulationView;
 
 	static final int NUM_PARTICLES = 15;
     private Particle mBalls[] = new Particle[NUM_PARTICLES];
@@ -34,8 +34,8 @@ class ParticleSystem {
         mMetersToPixelsY = YDPI / 0.0254f;
         Bitmap ball = BitmapFactory.decodeResource( accelerometerPlayActivity.getResources(),
         											R.drawable.ball);
-        for (int i = 0; i < mBalls.length; i++) {
-            mBalls[i] = new Particle(this, ball);
+        for (int i = 0; i < getParticles().length; i++) {
+            getParticles()[i] = new Particle(this, ball);
         }
     }
 
@@ -49,9 +49,9 @@ class ParticleSystem {
             final float dT = (float) (t - this.mSimulationView.mLastT) * (1.0f / 1000000000.0f);
             if (this.mSimulationView.mLastDeltaT != 0) {
                 final float dTC = dT / this.mSimulationView.mLastDeltaT;
-                final int count = mBalls.length;
+                final int count = getParticles().length;
                 for (int i = 0; i < count; i++) {
-                    Particle ball = mBalls[i];
+                    Particle ball = getParticles()[i];
                     ball.computePhysics(sx, sy, dT, dTC);
                 }
             }
@@ -82,13 +82,13 @@ class ParticleSystem {
          * stiffness.
          */
         boolean more = true;
-        final int count = mBalls.length;
+        final int count = getParticles().length;
         for (int k = 0; k < NUM_MAX_ITERATIONS && more; k++) {
             more = false;
             for (int i = 0; i < count; i++) {
-                Particle curr = mBalls[i];
+                Particle curr = getParticles()[i];
                 for (int j = i + 1; j < count; j++) {
-                    Particle ball = mBalls[j];
+                    Particle ball = getParticles()[j];
                     float dx = ball.mPosX - curr.mPosX;
                     float dy = ball.mPosY - curr.mPosY;
                     float dd = dx * dx + dy * dy;
@@ -98,8 +98,8 @@ class ParticleSystem {
                          * add a little bit of entropy, after all nothing is
                          * perfect in the universe.
                          */
-                        dx += ((float) Math.random() - 0.5f) * 0.0001f;
-                        dy += ((float) Math.random() - 0.5f) * 0.0001f;
+                        dx += ((float) Math.random() - 0.5f) * 0.00001f;
+                        dy += ((float) Math.random() - 0.5f) * 0.00001f;
                         dd = dx * dx + dy * dy;
                         // simulate the spring
                         final float d = (float) Math.sqrt(dd);
@@ -119,17 +119,18 @@ class ParticleSystem {
             }
         }
 	}
-
+    
+    
 	public int getParticleCount() {
-        return mBalls.length;
+        return getParticles().length;
     }
 
     public float getPosX(int i) {
-        return mBalls[i].mPosX;
+        return getParticles()[i].mPosX;
     }
 
     public float getPosY(int i) {
-        return mBalls[i].mPosY;
+        return getParticles()[i].mPosY;
     }
 
 	public void onSizeChanged(int w, int h) {
@@ -147,6 +148,10 @@ class ParticleSystem {
 
 	public Bitmap getBitmap(int i) {
 		// TODO Auto-generated method stub
-		return mBalls[i].mBitmap;
+		return getParticles()[i].mBitmap;
+	}
+
+	public Particle[] getParticles() {
+		return mBalls;
 	}
 }
