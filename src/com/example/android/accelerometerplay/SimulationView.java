@@ -19,10 +19,6 @@ class SimulationView extends View implements SensorEventListener {
 	 * 
 	 */
 	private final AccelerometerPlayActivity accelerometerPlayActivity;
-	
-    // friction of the virtual table and air
-    static final float sFriction = 0.1f;
-
     private Sensor mAccelerometer;
     long mLastT;
     float mLastDeltaT;
@@ -39,6 +35,8 @@ class SimulationView extends View implements SensorEventListener {
     private ParticleSystem mParticleSystem;
     private DisplayMetrics mDisplayMetrics;
 
+	private PhysicsEngineConvertor mConvertor;
+
     public void startSimulation() {
         
     	// Using SENSOR_DELAY_UI serves as alow-pass filter to 
@@ -47,7 +45,7 @@ class SimulationView extends View implements SensorEventListener {
         		SensorManager.SENSOR_DELAY_UI);
         
         if (this.mParticleSystem == null){
-            mParticleSystem = new ParticleSystem(this, accelerometerPlayActivity);
+            mParticleSystem = new ParticleSystem(this, accelerometerPlayActivity, mConvertor);
         }
     }
 
@@ -55,27 +53,20 @@ class SimulationView extends View implements SensorEventListener {
         this.accelerometerPlayActivity.mSensorManager.unregisterListener(this);
     }
 
-    public SimulationView(AccelerometerPlayActivity accelerometerPlayActivity, Context context) {
+    public SimulationView(AccelerometerPlayActivity accelerometerPlayActivity, Context context,
+    		              PhysicsEngineConvertor convertor, SystemDimensions systemDimensions) {
         super(context);
 		this.accelerometerPlayActivity = accelerometerPlayActivity;
         mAccelerometer = this.accelerometerPlayActivity.mSensorManager.getDefaultSensor(
         																Sensor.TYPE_ACCELEROMETER);
-
-        initializeMetrics();
         Options opts = new Options();
         opts.inDither = true;
         opts.inPreferredConfig = Bitmap.Config.RGB_565;
         mWood = BitmapFactory.decodeResource(getResources(), R.drawable.wood, opts);
-
+        mConvertor = convertor;
     }
 
-    private void initializeMetrics() {
-        mDisplayMetrics = new DisplayMetrics();
-        this.accelerometerPlayActivity.getWindowManager().
-        		getDefaultDisplay().getMetrics(mDisplayMetrics);
-        
-		
-	}
+
 
 	@Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -83,7 +74,6 @@ class SimulationView extends View implements SensorEventListener {
         // the bitmap
     	mWidth = w;
     	mHeight = h;
-
         mParticleSystem.onSizeChanged(w,h);
     }
 
@@ -126,28 +116,17 @@ class SimulationView extends View implements SensorEventListener {
     @Override
     protected void onDraw(Canvas canvas) {
 
-        /*
-         * draw the background
-         */
-
+        //draw the background
         canvas.drawBitmap(mWood, 0, 0, null);
 
-        /*
-         * compute the new position of our object, based on accelerometer
-         * data and present time.
-         */
-
+        //compute the new position of our object, based on accelerometer
+        //data and present time.
         final ParticleSystem particleSystem = mParticleSystem;
         final long now = mSensorTimeStamp + (System.nanoTime() - mCpuTimeStamp);
         final float sx = mSensorX;
         final float sy = mSensorY;
 
         particleSystem.update(sx, sy, now);
-
- 
-        final float xs = mParticleSystem.mMetersToPixelsX;
-        final float ys = mParticleSystem.mMetersToPixelsY;
-        
         final int count = particleSystem.getParticleCount();
         for (int i = 0; i < count; i++) {
             /*
@@ -155,12 +134,11 @@ class SimulationView extends View implements SensorEventListener {
              * the sensors coordinate system with the origin in the center
              * of the screen and the unit is the meter.
              */
-        	//TODO Replace all these .getFoo(index)methods with something more elegant
             final Bitmap bitmap = mParticleSystem.getBitmap(i);
             final float xc = (mWidth - bitmap.getWidth()) * 0.5f;
             final float yc = (mHeight - bitmap.getHeight()) * 0.5f;
-            final float x = xc + mParticleSystem.getPosX(i) * xs;
-            final float y = yc - mParticleSystem.getPosY(i) * ys;
+            final float x = xc + mConvertor.convertToScreenX( mParticleSystem.getPosX(i) );
+            final float y = yc - mConvertor.convertToScreenY( mParticleSystem.getPosY(i) );
             canvas.drawBitmap(bitmap, x, y, null);
         }
 

@@ -4,10 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 
-/** A mathematical model of a system of particles.  
- * 
- * @author johannes
- *
+/**
+ *  A mathematical model of a system of particles.  
  */
 class ParticleSystem {
 
@@ -17,25 +15,21 @@ class ParticleSystem {
     private Particle mBalls[] = new Particle[NUM_PARTICLES];
 	float mHorizontalBound;
 	float mVerticalBound;
-	float mMetersToPixelsX;
-	float mMetersToPixelsY;
+	private PhysicsEngineConvertor mConvertor;
 
     ParticleSystem(SimulationView simulationView, 
-    		AccelerometerPlayActivity accelerometerPlayActivity) {
-        this.mSimulationView = simulationView;
-        
-        DisplayMetrics metrics = simulationView.getDisplayMetrics();
-        final float XDPI = metrics.xdpi;
-        final float YDPI = metrics.ydpi;
+    		       AccelerometerPlayActivity accelerometerPlayActivity,
+    		       PhysicsEngineConvertor convertor) {
+        mSimulationView = simulationView;
+        mConvertor = convertor;
 		/*
          * Initially our particles have no speed or acceleration
          */
-        mMetersToPixelsX = XDPI / 0.0254f;
-        mMetersToPixelsY = YDPI / 0.0254f;
+
         Bitmap ball = BitmapFactory.decodeResource( accelerometerPlayActivity.getResources(),
         											R.drawable.ball);
         for (int i = 0; i < getParticles().length; i++) {
-            getParticles()[i] = new Particle(this, ball);
+            getParticles()[i] = new Particle(this, ball, mConvertor);
         }
     }
 
@@ -135,10 +129,9 @@ class ParticleSystem {
 
 	public void onSizeChanged(int w, int h) {
         //Calculate the new walls of the Particle System
-        float horizontalBound = ((w / mMetersToPixelsX - Particle.sBallDiameter) * 0.5f);
-        float verticalBound = ((h / mMetersToPixelsY - Particle.sBallDiameter) * 0.5f);
-        updateBounds(horizontalBound,verticalBound);
-		
+        float horizontalBound = mConvertor.convertToInertialFrameX(w) * 0.5f;
+        float verticalBound = mConvertor.convertToInertialFrameY(h)  * 0.5f;
+        updateBounds(horizontalBound,verticalBound);		
 	}
 	
 	private void updateBounds(float horizontalBound, float verticalBound) {

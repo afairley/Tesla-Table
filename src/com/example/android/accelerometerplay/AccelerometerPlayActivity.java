@@ -23,6 +23,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -46,6 +47,7 @@ public class AccelerometerPlayActivity extends Activity {
     private WindowManager mWindowManager;
     Display mDisplay;
     private WakeLock mWakeLock;
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,12 +66,21 @@ public class AccelerometerPlayActivity extends Activity {
         // Create a bright wake lock
         mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, getClass()
                 .getName());
-
-        // instantiate our simulation view and set it as the activity's content
-        mSimulationView = new SimulationView(this, this);
+        
+        DisplayMetrics displayMetrics = initializeDisplayMetrics();
+        SystemDimensions systemDimensions = new SystemDimensions();
+        PhysicsEngineConvertor convertor = new PhysicsEngineConvertor(displayMetrics,
+        															  systemDimensions );
+        mSimulationView = new SimulationView(this, this, convertor, systemDimensions);
         setContentView(mSimulationView);
     }
 
+    private DisplayMetrics initializeDisplayMetrics(){
+		DisplayMetrics dm = new DisplayMetrics(); 
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		return dm;
+    }
+    
     @Override
     protected void onResume() {
         super.onResume();
