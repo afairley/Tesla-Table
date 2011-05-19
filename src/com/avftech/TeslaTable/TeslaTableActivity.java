@@ -101,7 +101,8 @@ public class TeslaTableActivity extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Welcome to Tesla's Table.  The yellow orbs are sensitive to magnetism,"+
         		" all the orbs respond to touch.  Music is \"Sleep Well\" from Trans Alp's Silizium," +
-        		"available at http://j.mp/jxAfo4.  Source is available on Github at ");
+        		"available at http://j.mp/jxAfo4.  Source is available on Github" +
+        		"at http://j.mp/lSJdbU?r=bb ");
         builder.setTitle("About");
         builder.setPositiveButton("Ok", null);
         mAlert = builder.create();
