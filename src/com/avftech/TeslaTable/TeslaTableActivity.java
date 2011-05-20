@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Portions Copyright (C) 2011 Alexander Vegas Fairley
+ * Portions Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +29,17 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 /**
  * This is an example of using the accelerometer to integrate the device's
@@ -93,20 +101,27 @@ public class TeslaTableActivity extends Activity {
 		}	
         
         DisplayMetrics displayMetrics = initializeDisplayMetrics();
-        SystemDimensions systemDimensions = new SystemDimensions();
-        PhysicsEngineConvertor convertor = new PhysicsEngineConvertor(displayMetrics,
-        															  systemDimensions );
-        mSimulationView = new SimulationView(this, this, convertor, systemDimensions);
-        setContentView(mSimulationView);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Welcome to Tesla's Table.  The yellow orbs are sensitive to magnetism,"+
-        		" all the orbs respond to touch.  Music is \"Sleep Well\" from Trans Alp's Silizium," +
-        		"available at http://j.mp/jxAfo4.  Source is available on Github" +
-        		"at http://j.mp/lSJdbU?r=bb ");
-        builder.setTitle("About");
-        builder.setPositiveButton("Ok", null);
-        mAlert = builder.create();
         
+        PhysicsEngineConvertor convertor = new PhysicsEngineConvertor(displayMetrics );
+        mSimulationView = new SimulationView(this, this, convertor);
+        setContentView(mSimulationView);
+        
+        final LayoutInflater factory = LayoutInflater.from(this);
+        final View dialogView = factory.inflate(R.layout.alert_dialog, null);
+        final TextView tv = (TextView) dialogView.findViewById(R.id.message);
+        final SpannableString s = new SpannableString(
+        		"\nWelcome to Tesla's Table.  The yellow and green orbs are sensitive to magnetism,"+
+        		" all the orbs respond to touch.\n\nMusic is \"Sleep Well\" \nfrom Trans Alp's Silizium," +
+        		" available at \n\thttp://j.mp/jxAfo4.\n\nSource is available on Github at\n" +
+        		"\n\thttp://j.mp/lSJdbU\n");
+        Linkify.addLinks(s, Linkify.WEB_URLS);
+        tv.setText(s);
+        tv.setMovementMethod(LinkMovementMethod.getInstance());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);        
+        builder.setView(dialogView);
+        builder.setPositiveButton("Ok", null);
+        mAlert = builder.create(); 
     }
 
     private DisplayMetrics initializeDisplayMetrics(){
